@@ -1,0 +1,39 @@
+{{ define "header" }}{{ end }}
+{{ define "layout" }}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{{ .Page.Title }} &ndash; Träna</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+        <style>
+                :root {
+                        --bs-body-color: #000;
+                        --bs-border-color: #000;
+                }
+        </style>
+        {{ template "header" . }}
+</head>
+
+<body>
+        <main class="content">
+                <div class="row justify-content-center w-100">
+                        <div class="col-11 col-sm-8 col-md-6 {{ if .Page.Small -}} col-lg-4 col-xl-3 {{- end }}">
+                                <h2 class="font-weight-bold mt-4 mb-3 text-center">
+                                        {{ if .Page.Home }}
+                                        Träna
+                                        {{ else }}
+                                        <a href="/">Träna</a>
+                                        {{ end }}
+                                </h2>
+                                <div class="shadow-lg p-4 d-grid px-3 rounded position-relative">{{ template "body" . }}</div>
+                        </div>
+                </div>
+        </main>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+</body>
+
+</html>
+{{ end }}

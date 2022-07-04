@@ -1,0 +1,66 @@
+{{ define "header" }}
+<style>
+        .bg-danger-light {
+                --bs-bg-opacity: 0.5;
+                background-color: rgba(var(--bs-danger-rgb), var(--bs-bg-opacity)) !important;
+        }
+</style>
+{{ end }}
+{{ define "body" }}
+<form method="post" action="/practice_comfort">
+        <div class="position-absolute top-0 start-100 translate-middle badge bg-dark">Card {{ .Card.ID }}</div>
+
+        <input type="text" class="form-control mb-3 fs-2 text-center" value="{{ .Card.Front }}" readonly>
+
+        <p class="text-center fw-bold">
+                You entered
+                {{ if .Ok }}
+                <span class="text-center text-success">(correct)</span>
+                {{ else }}
+                <span class="text-center text-danger">(incorrect)</span>
+                {{ end }}
+        </p>
+        <p class="form-control-plaintext mb-3 fs-2 text-center">
+                {{ range .Diff }}
+                {{- if .Ok -}}
+                {{- .R -}}
+                {{- else -}}
+                <span class="bg-danger-light">{{ .R }}</span>
+                {{- end -}}
+                {{ end }}
+        </p>
+
+        {{ if not .Ok }}
+        <p class="text-center fw-bold text-center text-success">Correct value</p>
+        <input class="form-control mb-3 fs-2 text-center" value="{{ .Card.Back }}" readonly>
+        {{ end }}
+
+        <div class="d-grid">
+                <div class="btn-group fw-bold mb-3">
+                        <input type="radio" class="btn-check" name="comfort" value="1" id="comfort_1" required autocomplete="off">
+                        <label class="btn btn-outline-danger fw-bold" for="comfort_1">Not sure</label>
+
+                        <input type="radio" class="btn-check" name="comfort" value="2" id="comfort_2" required autocomplete="off">
+                        <label class="btn btn-outline-warning fw-bold" for="comfort_2">Learning</label>
+
+                        <input type="radio" class="btn-check" name="comfort" value="3" id="comfort_3" required autocomplete="off">
+                        <label class="btn btn-outline-success fw-bold" for="comfort_3">Confident</label>
+                </div>
+        </div>
+
+        <div class="d-grid">
+                <button type="submit" class="btn btn-dark">Submit</button>
+        </div>
+
+        <input name="id" value="{{ .Card.ID }}" required readonly hidden>
+        {{ if .Mode.Swapped }}
+        <input name="swapped" value="true" required readonly hidden>
+        {{ end }}
+        {{ if .Mode.Reverse }}
+        <input name="reverse" value="true" required readonly hidden>
+        {{ end }}
+        {{ if .Mode.Random }}
+        <input name="random" value="true" required readonly hidden>
+        {{ end }}
+</form>
+{{ end }}

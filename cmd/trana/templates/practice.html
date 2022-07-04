@@ -1,0 +1,24 @@
+{{ define "body" }}
+<form method="get" action="/practice_check">
+        <div class="position-absolute top-0 start-100 translate-middle badge bg-dark">Card {{ .Card.ID }}</div>
+
+        <input type="text" id="front" class="form-control mb-3 fs-2 text-center" value="{{ .Card.Front }}" readonly>
+
+        <input name="back" id="back" type="text" class="form-control mb-3 fs-2 text-center">
+
+        <div class="d-grid">
+                <button type="submit" class="btn btn-dark">Check</button>
+        </div>
+
+        <input name="id" value="{{ .Card.ID }}" required readonly hidden>
+        {{ if .Mode.Swapped }}
+        <input name="swapped" value="true" required readonly hidden>
+        {{ end }}
+        {{ if .Mode.Reverse }}
+        <input name="reverse" value="true" required readonly hidden>
+        {{ end }}
+        {{ if .Mode.Random }}
+        <input name="random" value="true" required readonly hidden>
+        {{ end }}
+</form>
+{{ end }}

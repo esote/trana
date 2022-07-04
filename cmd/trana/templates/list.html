@@ -1,0 +1,64 @@
+{{ define "body" }}
+<div class="mb-3">
+        <div class="btn-group">
+                <a href="/practice" class="btn btn-outline-dark">Practice</a>
+                <button type="button" class="btn btn-outline-dark dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
+                        <span class="visually-hidden">Toggle dropdown</span>
+                </button>
+                <div class="dropdown-menu">
+                        <a class="dropdown-item" href="/practice?reverse=true">Reversed</a>
+                        <a class="dropdown-item" href="/practice?random=true">Random</a>
+                </div>
+        </div>
+        <a href="/add" class="btn btn-outline-dark">Add card</a>
+        <div class="float-end">
+                <a href="/export" download class="btn btn-outline-dark">Export</a>
+                <form method="post" action="/import" enctype="multipart/form-data" class="d-inline">
+                        <label class="btn btn-outline-dark" for="file">Import</label>
+                        <input id="file" name="file" class="form-control visually-hidden" required type="file" accept=".json" onchange="this.form.submit()">
+                </form>
+        </div>
+</div>
+<table class="table table-hover align-middle">
+        <thead>
+                <tr>
+                        <th>ID</th>
+                        <th>Front</th>
+                        <th>Back</th>
+                        <th>Comfort</th>
+                        <th>Last practiced</th>
+                        <th></th>
+                </tr>
+        </thead>
+        <tbody>
+                {{ range .Cards }}
+                <tr>
+                        <td>{{ .ID }}</td>
+                        <td>{{ .Front }}</td>
+                        <td>{{ .Back }}</td>
+                        <td title="{{ .Comfort }}">
+                                {{ if eq .Comfort -1.0 }}
+                                <span class="badge text-bg-light border border-dark fs-6">Not practiced</span>
+                                {{ else if lt .Comfort 1.5 }}
+                                <span class="badge text-bg-danger fs-6">Not sure</span>
+                                {{ else if lt .Comfort 3.0 }}
+                                <span class="badge text-bg-warning fs-6">Learning</span>
+                                {{ else if le .Comfort 4.0 }}
+                                <span class="badge text-bg-success fs-6">Confident</span>
+                                {{ end }}
+                        </td>
+                        <td>
+                                {{ if .LastPracticed }}
+                                {{ .LastPracticed }}
+                                {{ end }}
+                        </td>
+                        <td>
+                                <a href="/delete?id={{ .ID }}" class="btn btn-sm btn-outline-danger fw-bold float-end">
+                                        Delete
+                                </a>
+                        </td>
+                </tr>
+                {{ end }}
+        </tbody>
+</table>
+{{ end }}

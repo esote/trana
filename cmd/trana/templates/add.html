@@ -1,0 +1,17 @@
+{{ define "body" }}
+<form method="post" action="/add">
+        <div class="form-floating mb-3">
+                <input type="text" name="front" id="front" class="form-control" placeholder="front">
+                <label for="front">Front</label>
+        </div>
+
+        <div class="form-floating mb-3">
+                <input type="text" name="back" id="back" class="form-control" placeholder="back">
+                <label for="back">Back</label>
+        </div>
+
+        <div class="d-grid">
+                <button type="submit" class="btn btn-dark">Create</button>
+        </div>
+</form>
+{{ end }}
