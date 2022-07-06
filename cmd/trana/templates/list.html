@@ -19,7 +19,7 @@
                 </form>
         </div>
 </div>
-<table class="table table-hover align-middle">
+<table class="table table-hover align-middle mb-0">
         <thead>
                 <tr>
                         <th>ID</th>
@@ -38,7 +38,7 @@
                         <td>{{ .Back }}</td>
                         <td title="{{ .Comfort }}">
                                 {{ if eq .Comfort -1.0 }}
-                                <span class="badge text-bg-light border border-dark fs-6">Not practiced</span>
+                                <span class="badge text-bg-dark fs-6">Not practiced</span>
                                 {{ else if lt .Comfort 1.5 }}
                                 <span class="badge text-bg-danger fs-6">Not sure</span>
                                 {{ else if lt .Comfort 3.0 }}

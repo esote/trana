@@ -21,14 +21,14 @@
         <main class="content">
                 <div class="row justify-content-center w-100">
                         <div class="col-11 col-sm-8 col-md-6 {{ if .Page.Small -}} col-lg-4 col-xl-3 {{- end }}">
-                                <h2 class="font-weight-bold mt-4 mb-3 text-center">
+                                <h2 class="font-weight-bold mt-4 text-center">
                                         {{ if .Page.Home }}
                                         Träna
                                         {{ else }}
                                         <a href="/">Träna</a>
                                         {{ end }}
                                 </h2>
-                                <div class="shadow-lg p-4 d-grid px-3 rounded position-relative">{{ template "body" . }}</div>
+                                <div class="shadow-lg my-3 p-3 d-grid rounded position-relative">{{ template "body" . }}</div>
                         </div>
                 </div>
         </main>
