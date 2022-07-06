@@ -6,7 +6,10 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"strings"
 	"time"
+
+	"golang.org/x/text/unicode/norm"
 )
 
 var (
@@ -48,6 +51,9 @@ func (d *Deck) Close() error {
 }
 
 func (d *Deck) Add(ctx context.Context, front, back string) error {
+	front = cleanString(front)
+	back = cleanString(back)
+
 	return tx(d.db, ctx, func(tx *sql.Tx) error {
 		_, err := tx.Exec(`INSERT INTO "cards" ("front", "back")
 			VALUES (@front, @back)`, front, back)
@@ -181,6 +187,9 @@ func importCard(tx *sql.Tx, card *Card) error {
 		lastPracticed.Int64 = card.LastPracticed.Unix()
 	}
 
+	card.Front = cleanString(card.Front)
+	card.Back = cleanString(card.Back)
+
 	var id int64
 	var back string
 	err := tx.QueryRow(`SELECT "id", "back"
@@ -204,6 +213,12 @@ func importCard(tx *sql.Tx, card *Card) error {
 	_, err = tx.Exec(`INSERT INTO "cards" ("front", "back", "last_practiced", "comfort")
 		VALUES (@front, @back, @lastPracticed, @comfort)`, card.Front, card.Back, lastPracticed, card.Comfort)
 	return err
+}
+
+func cleanString(s string) string {
+	s = strings.TrimSpace(s)
+	s = norm.NFC.String(s)
+	return s
 }
 
 func comfortNorm(comfort float64) float64 {
