@@ -53,9 +53,14 @@
                                 {{ end }}
                         </td>
                         <td>
-                                <a href="/delete?id={{ .ID }}" class="btn btn-sm btn-outline-danger fw-bold float-end">
-                                        Delete
-                                </a>
+                                <div class="float-end">
+                                        <a href="/edit?id={{ .ID }}" class="btn btn-sm btn-outline-success fw-bold me-2">
+                                                Edit
+                                        </a>
+                                        <a href="/delete?id={{ .ID }}" class="btn btn-sm btn-outline-danger fw-bold">
+                                                Delete
+                                        </a>
+                                </div>
                         </td>
                 </tr>
                 {{ end }}

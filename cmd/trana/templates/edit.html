@@ -1,0 +1,24 @@
+{{ define "body" }}
+<form method="post" action="/edit" class="text-center">
+        <div class="position-absolute top-0 start-100 translate-middle badge bg-dark">Card {{ .Card.ID }}</div>
+
+        <label for="front">Front</label>
+        <input type="text" name="front" id="front" class="form-control mb-3 fs-2 text-center" value="{{ .Card.Front}}">
+
+        <label for="back">Back</label>
+        <input type="text" name="back" id="back" class="form-control mb-3 fs-2 text-center" value="{{ .Card.Back }}">
+
+        {{ $dateTimeLocal := "2006-01-02T15:04" }}
+        <label for="last_practiced">Last practiced</label>
+        <input type="datetime-local" name="last_practiced" id="last_practiced" class="form-control mb-3 fs-2 text-center" value="{{ if .Card.LastPracticed -}} {{ .Card.LastPracticed.Format $dateTimeLocal }} {{- end }}">
+
+        <label for="comfort">Comfort</label>
+        <input type="number" min="{{ .ComfortMin }}" max="{{ .ComfortMax }}" step="any" name="comfort" id="comfort" class="form-control mb-3 fs-2 text-center" value="{{ .Card.Comfort }}">
+
+        <div class="d-grid">
+                <button type="submit" class="btn btn-dark">Save</button>
+        </div>
+
+        <input name="id" value="{{ .Card.ID }}" required readonly hidden>
+</form>
+{{ end }}

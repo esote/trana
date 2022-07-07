@@ -97,6 +97,15 @@ type DeletePage struct {
 	Card *trana.Card
 }
 
+type EditPage struct {
+	Page
+	Card *trana.Card
+
+	ComfortMin, ComfortMax float64
+}
+
+const dateTimeLocal = "2006-01-02T15:04"
+
 func main() {
 	var dir string
 	flag.StringVar(&dir, "d", "", "alternative config directory")
@@ -227,7 +236,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		if err = deck.Update(r.Context(), id, comfort); err != nil {
+		if err = deck.Review(r.Context(), id, comfort); err != nil {
 			log.Fatal(err)
 		}
 
@@ -304,6 +313,65 @@ func main() {
 		if err = deck.Del(r.Context(), id); err != nil {
 			log.Fatal(err)
 		}
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	})
+	r.Get("/edit", func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
+		if err != nil {
+			log.Fatal(err)
+		}
+		card, err := deck.Get(r.Context(), id)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		page := EditPage{
+			Page: Page{
+				Title: "Edit card",
+				Small: true,
+			},
+			Card:       card,
+			ComfortMin: trana.ComfortMin,
+			ComfortMax: trana.ComfortMax,
+		}
+
+		if err = templates["edit.html"].ExecuteTemplate(w, "layout", &page); err != nil {
+			log.Fatal(err)
+		}
+	})
+	r.Post("/edit", func(w http.ResponseWriter, r *http.Request) {
+		if err := r.ParseForm(); err != nil {
+			log.Fatal(err)
+		}
+
+		var err error
+		var card trana.Card
+
+		card.ID, err = strconv.ParseInt(r.Form.Get("id"), 10, 64)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		card.Front = r.Form.Get("front")
+		card.Back = r.Form.Get("back")
+
+		if r.Form.Has("last_practiced") {
+			t, err := time.ParseInLocation(dateTimeLocal, r.Form.Get("last_practiced"), time.Local)
+			if err != nil {
+				log.Fatal(err)
+			}
+			card.LastPracticed = &t
+		}
+
+		card.Comfort, err = strconv.ParseFloat(r.Form.Get("comfort"), 64)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if err = deck.Edit(r.Context(), &card); err != nil {
+			log.Fatal(err)
+		}
+
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	})
 	r.Get("/export", func(w http.ResponseWriter, r *http.Request) {

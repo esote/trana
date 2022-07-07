@@ -12,23 +12,23 @@ import (
 	"golang.org/x/text/unicode/norm"
 )
 
+const (
+	ComfortReviewMin = 1
+	ComfortReviewMax = 3
+
+	ComfortMin    = ComfortReviewMin - 1
+	ComfortMax    = ComfortReviewMax + 1
+	ComfortStddev = 0.25
+)
+
 var (
 	ErrNoCard     = errors.New("trana: no cards in deck")
-	ErrBadComfort = fmt.Errorf("trana: comfort must be from %d to %d", ComfortMax, ComfortMax)
+	ErrBadComfort = fmt.Errorf("trana: comfort must be from %d to %d", ComfortReviewMax, ComfortReviewMax)
 )
 
 type Deck struct {
 	db *sql.DB
 }
-
-const (
-	ComfortMin = 1
-	ComfortMax = 3
-
-	ComfortNormMin = ComfortMin - 1
-	ComfortNormMax = ComfortMax + 1
-	ComfortStddev  = 0.25
-)
 
 type Card struct {
 	ID            int64
@@ -63,7 +63,8 @@ func (d *Deck) Add(ctx context.Context, front, back string) error {
 
 func (d *Deck) Del(ctx context.Context, id int64) error {
 	err := tx(d.db, ctx, func(tx *sql.Tx) error {
-		_, err := tx.Exec(`DELETE FROM "cards" WHERE "id" = @id`, id)
+		_, err := tx.Exec(`DELETE FROM "cards"
+			WHERE "id" = @id`, id)
 		return err
 	})
 	if errors.Is(err, sql.ErrNoRows) {
@@ -74,45 +75,37 @@ func (d *Deck) Del(ctx context.Context, id int64) error {
 
 func (d *Deck) Get(ctx context.Context, id int64) (*Card, error) {
 	var card Card
+	var lastPracticed sql.NullInt64
+
 	err := tx(d.db, ctx, func(tx *sql.Tx) error {
-		var lastPracticed sql.NullInt64
-		err := tx.QueryRow(`SELECT "id", "front", "back", "last_practiced", "comfort"
+		return tx.QueryRow(`SELECT "id", "front", "back", "last_practiced", "comfort"
 			FROM "cards"
-			WHERE "id" = @id`, id).Scan(&card.ID, &card.Front, &card.Back, &lastPracticed, &card.Comfort)
-		if err != nil {
-			return err
-		}
-		if lastPracticed.Valid {
-			t := time.Unix(lastPracticed.Int64, 0)
-			card.LastPracticed = &t
-		}
-		return nil
+			WHERE "id" = @id
+			LIMIT 1`, id).Scan(&card.ID, &card.Front, &card.Back, &lastPracticed, &card.Comfort)
 	})
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNoCard
 	}
 	if err != nil {
 		return nil, err
+	}
+
+	if lastPracticed.Valid {
+		t := time.Unix(lastPracticed.Int64, 0)
+		card.LastPracticed = &t
 	}
 	return &card, nil
 }
 
 func (d *Deck) Next(ctx context.Context) (*Card, error) {
 	var card Card
+	var lastPracticed sql.NullInt64
+
 	err := tx(d.db, ctx, func(tx *sql.Tx) error {
-		var lastPracticed sql.NullInt64
-		err := tx.QueryRow(`SELECT "id", "front", "back", "last_practiced", "comfort"
+		return tx.QueryRow(`SELECT "id", "front", "back", "last_practiced", "comfort"
 			FROM "cards"
 			ORDER BY "comfort" ASC, RANDOM()
 			LIMIT 1`).Scan(&card.ID, &card.Front, &card.Back, &lastPracticed, &card.Comfort)
-		if err != nil {
-			return err
-		}
-		if lastPracticed.Valid {
-			t := time.Unix(lastPracticed.Int64, 0)
-			card.LastPracticed = &t
-		}
-		return nil
 	})
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNoCard
@@ -120,23 +113,50 @@ func (d *Deck) Next(ctx context.Context) (*Card, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	if lastPracticed.Valid {
+		t := time.Unix(lastPracticed.Int64, 0)
+		card.LastPracticed = &t
+	}
 	return &card, nil
 }
 
-func (d *Deck) Update(ctx context.Context, id int64, comfort float64) error {
-	if comfort < ComfortMin || comfort > ComfortMax {
+func (d *Deck) Edit(ctx context.Context, card *Card) error {
+	if card == nil {
+		return errors.New("card is nil")
+	}
+	if card.Comfort < ComfortMin || card.Comfort > ComfortMax {
 		return ErrBadComfort
 	}
-	err := tx(d.db, ctx, func(tx *sql.Tx) error {
+
+	front := cleanString(card.Front)
+	back := cleanString(card.Back)
+	var lastPracticed sql.NullInt64
+	if card.LastPracticed != nil {
+		lastPracticed.Valid = true
+		lastPracticed.Int64 = card.LastPracticed.Unix()
+	}
+
+	return tx(d.db, ctx, func(tx *sql.Tx) error {
 		_, err := tx.Exec(`UPDATE "cards"
-			SET "last_practiced" = strftime('%s', 'now'), "comfort" = @comfort
-			WHERE "id" = @id`, comfortNorm(comfort), id)
+			SET "front" = @front, "back" = @back, "last_practiced" = @lastPracticed, "comfort" = @comfort
+			WHERE "id" = @id`, front, back, lastPracticed, card.Comfort, card.ID)
 		return err
 	})
-	if errors.Is(err, sql.ErrNoRows) {
-		return ErrNoCard
+}
+
+func (d *Deck) Review(ctx context.Context, id int64, comfort float64) error {
+	if comfort < ComfortReviewMin || comfort > ComfortReviewMax {
+		return ErrBadComfort
 	}
-	return err
+	comfort = comfortNorm(comfort)
+
+	return tx(d.db, ctx, func(tx *sql.Tx) error {
+		_, err := tx.Exec(`UPDATE "cards"
+			SET "comfort" = @comfort
+			WHERE "id" = @id`, comfort, id)
+		return err
+	})
 }
 
 func (d *Deck) List(ctx context.Context) ([]Card, error) {
@@ -222,7 +242,7 @@ func cleanString(s string) string {
 }
 
 func comfortNorm(comfort float64) float64 {
-	return truncNorm(ComfortNormMin, ComfortNormMax, comfort, ComfortStddev)
+	return truncNorm(ComfortMin, ComfortMax, comfort, ComfortStddev)
 }
 
 func truncNorm(min, max, mean, stddev float64) float64 {
