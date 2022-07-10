@@ -1,21 +1,31 @@
+{{ define "title" }}
+Cards &ndash; {{ .Deck.Name }}
+{{ end }}
+
+{{ define "breadcrumb" }}
+<li class="breadcrumb-item"><a href="/">Träna</a></li>
+<li class="breadcrumb-item active">{{ .Deck.Name }}</li>
+{{ end }}
+
 {{ define "body" }}
 <div class="mb-3">
         <div class="btn-group">
-                <a href="/practice" class="btn btn-outline-dark">Practice</a>
+                <a href="/card/practice?deck={{ .Deck.ID }}" class="btn btn-outline-dark">Practice</a>
                 <button type="button" class="btn btn-outline-dark dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
                         <span class="visually-hidden">Toggle dropdown</span>
                 </button>
                 <div class="dropdown-menu">
-                        <a class="dropdown-item" href="/practice?reverse=true">Reversed</a>
-                        <a class="dropdown-item" href="/practice?random=true">Random</a>
+                        <a class="dropdown-item" href="/card/practice?deck={{ .Deck.ID }}&reverse=true">Reversed</a>
+                        <a class="dropdown-item" href="/card/practice?deck={{ .Deck.ID }}&random=true">Random</a>
                 </div>
         </div>
-        <a href="/add" class="btn btn-outline-dark">Add card</a>
+        <a href="/card/create?deck={{ .Deck.ID }}" class="btn btn-outline-dark">Create</a>
         <div class="float-end">
-                <a href="/export" download class="btn btn-outline-dark">Export</a>
+                <a href="/export?deck={{ .Deck.ID }}" download class="btn btn-outline-dark">Export</a>
                 <form method="post" action="/import" enctype="multipart/form-data" class="d-inline">
                         <label class="btn btn-outline-dark" for="file">Import</label>
                         <input id="file" name="file" class="form-control visually-hidden" required type="file" accept=".json" onchange="this.form.submit()">
+                        <input name="deck" value="{{ .Deck.ID }}" required readonly hidden>
                 </form>
         </div>
 </div>
@@ -54,10 +64,10 @@
                         </td>
                         <td>
                                 <div class="float-end">
-                                        <a href="/edit?id={{ .ID }}" class="btn btn-sm btn-outline-success fw-bold me-2">
-                                                Edit
+                                        <a href="/card/update?deck={{ $.Deck.ID }}&card={{ .ID }}" class="btn btn-sm btn-outline-success fw-bold me-2">
+                                                Update
                                         </a>
-                                        <a href="/delete?id={{ .ID }}" class="btn btn-sm btn-outline-danger fw-bold">
+                                        <a href="/card/delete?deck={{ $.Deck.ID }}&card={{ .ID }}" class="btn btn-sm btn-outline-danger fw-bold">
                                                 Delete
                                         </a>
                                 </div>

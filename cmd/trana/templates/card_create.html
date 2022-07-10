@@ -1,0 +1,27 @@
+{{ define "title" }}
+Create card &ndash; {{ .Deck.Name }}
+{{ end }}
+
+{{ define "small" }}col-lg-4 col-xl-3{{ end }}
+
+{{ define "breadcrumb" }}
+<li class="breadcrumb-item"><a href="/">Träna</a></li>
+<li class="breadcrumb-item"><a href="/cards?deck={{ .Deck.ID }}">{{ .Deck.Name }}</a></li>
+<li class="breadcrumb-item active">Create</li>
+{{ end }}
+
+{{ define "body" }}
+<form method="post" action="/card/create" class="text-center">
+        <label for="front">Front</label>
+        <input type="text" name="front" id="front" class="form-control mb-3 fs-2 text-center" required autofocus>
+
+        <label for="back">Back</label>
+        <input type="text" name="back" id="back" class="form-control mb-3 fs-2 text-center" required>
+
+        <div class="d-grid">
+                <button type="submit" class="btn btn-dark">Create</button>
+        </div>
+
+        <input name="deck" value="{{ .Deck.ID }}" required readonly hidden>
+</form>
+{{ end }}

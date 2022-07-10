@@ -1,0 +1,34 @@
+{{ define "title" }}
+Update card &ndash; {{ .Deck.Name }}
+{{ end }}
+
+{{ define "small" }}col-lg-4{{ end }}
+
+{{ define "breadcrumb" }}
+<li class="breadcrumb-item"><a href="/">Träna</a></li>
+<li class="breadcrumb-item"><a href="/cards?deck={{ .Deck.ID }}">{{ .Deck.Name }}</a></li>
+<li class="breadcrumb-item active">Update</li>
+{{ end }}
+
+{{ define "body" }}
+<form method="post" action="/card/update" class="text-center">
+        <label for="front">Front</label>
+        <input type="text" name="front" id="front" class="form-control mb-3 fs-2 text-center" value="{{ .Card.Front}}" required>
+
+        <label for="back">Back</label>
+        <input type="text" name="back" id="back" class="form-control mb-3 fs-2 text-center" value="{{ .Card.Back }}" required>
+
+        <label for="last_practiced">Last practiced</label>
+        <input type="datetime-local" name="last_practiced" id="last_practiced" class="form-control mb-3 fs-2 text-center" value="{{ if .Card.LastPracticed -}} {{ .Card.LastPracticed.Format .TimeFormat }} {{- end }}">
+
+        <label for="comfort">Comfort</label>
+        <input type="number" min="{{ .ComfortMin }}" max="{{ .ComfortMax }}" step="any" name="comfort" id="comfort" class="form-control mb-3 fs-2 text-center" value="{{ if ne .Card.Comfort -1.0 -}} {{ .Card.Comfort }} {{- end }}">
+
+        <div class="d-grid">
+                <button type="submit" class="btn btn-dark">Save</button>
+        </div>
+
+        <input name="deck" value="{{ .Deck.ID }}" required readonly hidden>
+        <input name="card" value="{{ .Card.ID }}" required readonly hidden>
+</form>
+{{ end }}

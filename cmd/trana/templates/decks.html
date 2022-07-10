@@ -1,0 +1,42 @@
+{{ define "title" }}
+Decks &ndash; Träna
+{{ end }}
+
+{{ define "small" }}col-lg-4 col-xl-3{{ end }}
+
+{{ define "home"}}
+<h2 class="font-weight-bold mt-4 text-center">
+        Träna
+</h2>
+{{ end }}
+
+{{ define "body" }}
+<div class="mb-3">
+        <a href="/deck/create" class="btn btn-outline-dark">Create</a>
+</div>
+<table class="table table-hover align-middle mb-0">
+        <thead>
+                <tr>
+                        <th>Name</th>
+                        <th></th>
+                </tr>
+        </thead>
+        <tbody>
+                {{ range .Decks }}
+                <tr>
+                        <td><a href="/cards?deck={{ .ID }}">{{ .Name }}</a></td>
+                        <td>
+                                <div class="float-end">
+                                        <a href="/deck/update?deck={{ .ID }}" class="btn btn-sm btn-outline-success fw-bold me-2">
+                                                Update
+                                        </a>
+                                        <a href="/deck/delete?deck={{ .ID }}" class="btn btn-sm btn-outline-danger fw-bold">
+                                                Delete
+                                        </a>
+                                </div>
+                        </td>
+                </tr>
+                {{ end }}
+        </tbody>
+</table>
+{{ end }}

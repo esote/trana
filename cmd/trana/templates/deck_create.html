@@ -1,0 +1,21 @@
+{{ define "title" }}
+Create deck &ndash; Träna
+{{ end }}
+
+{{ define "small" }}col-lg-4 col-xl-3{{ end }}
+
+{{ define "breadcrumb" }}
+<li class="breadcrumb-item"><a href="/">Träna</a></li>
+<li class="breadcrumb-item active">Create</li>
+{{ end }}
+
+{{ define "body" }}
+<form method="post" action="/deck/create" class="text-center">
+        <label for="name">Name</label>
+        <input type="text" name="name" id="name" class="form-control mb-3 fs-2 text-center" required autofocus>
+
+        <div class="d-grid">
+                <button type="submit" class="btn btn-dark">Create</button>
+        </div>
+</form>
+{{ end }}

@@ -1,0 +1,26 @@
+{{ define "title" }}
+Delete card &ndash; {{ .Deck.Name }}
+{{ end }}
+
+{{ define "small" }}col-lg-4 col-xl-3{{ end }}
+
+{{ define "breadcrumb" }}
+<li class="breadcrumb-item"><a href="/">Träna</a></li>
+<li class="breadcrumb-item"><a href="/cards?deck={{ .Deck.ID }}">{{ .Deck.Name }}</a></li>
+<li class="breadcrumb-item active">Delete</li>
+{{ end }}
+
+{{ define "body" }}
+<form method="post" action="/card/delete">
+        <input type="text" class="form-control mb-3 fs-2 text-center" value="{{ .Card.Front }}" readonly>
+
+        <input type="text" class="form-control mb-3 fs-2 text-center" value="{{ .Card.Back }}" readonly>
+
+        <div class="d-grid">
+                <button type="submit" class="btn btn-danger">Delete</button>
+        </div>
+
+        <input name="deck" value="{{ .Deck.ID }}" required readonly hidden>
+        <input name="card" value="{{ .Card.ID }}" required readonly hidden>
+</form>
+{{ end }}

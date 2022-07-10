@@ -18,8 +18,12 @@ func openDB(path string) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	// TODO: enable foreign keys, do integrity checks, set defensive config, etc
 	if err = migrateDB(db, path); err != nil {
+		db.Close()
+		return nil, err
+	}
+	// TODO: do integrity checks, set defensive config, etc
+	if err = setupDB(db); err != nil {
 		db.Close()
 		return nil, err
 	}
@@ -49,6 +53,21 @@ func migrateDB(db *sql.DB, path string) error {
 	if err = m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		return err
 	}
+	return nil
+}
+
+func setupDB(db *sql.DB) error {
+	if _, err := db.Exec(`PRAGMA foreign_keys = ON`); err != nil {
+		return err
+	}
+
+	if err := db.QueryRow(`PRAGMA foreign_key_check`).Scan(); !errors.Is(err, sql.ErrNoRows) {
+		if err == nil {
+			return errors.New("database contains foreign key errors")
+		}
+		return err
+	}
+
 	return nil
 }
 

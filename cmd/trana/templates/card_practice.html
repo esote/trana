@@ -1,5 +1,17 @@
+{{ define "title" }}
+Practice card &ndash; {{ .Deck.Name }}
+{{ end }}
+
+{{ define "small" }}col-lg-4 col-xl-3{{ end }}
+
+{{ define "breadcrumb" }}
+<li class="breadcrumb-item"><a href="/">Träna</a></li>
+<li class="breadcrumb-item"><a href="/cards?deck={{ .Deck.ID }}">{{ .Deck.Name }}</a></li>
+<li class="breadcrumb-item active">Practice</li>
+{{ end }}
+
 {{ define "body" }}
-<form method="get" action="/practice_check">
+<form method="get" action="/card/check">
         <div class="position-absolute top-0 start-100 translate-middle badge bg-dark">Card {{ .Card.ID }}</div>
 
         <input type="text" id="front" class="form-control mb-3 fs-2 text-center" value="{{ .Card.Front }}" readonly>
@@ -10,7 +22,9 @@
                 <button type="submit" class="btn btn-dark">Check</button>
         </div>
 
-        <input name="id" value="{{ .Card.ID }}" required readonly hidden>
+        <input name="deck" value="{{ .Deck.ID }}" required readonly hidden>
+        <input name="card" value="{{ .Card.ID }}" required readonly hidden>
+
         {{ if .Mode.Swapped }}
         <input name="swapped" value="true" required readonly hidden>
         {{ end }}

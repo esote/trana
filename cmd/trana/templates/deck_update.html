@@ -1,0 +1,23 @@
+{{ define "title" }}
+Update deck &ndash; Träna
+{{ end }}
+
+{{ define "small" }}col-lg-4 col-xl-3{{ end }}
+
+{{ define "breadcrumb" }}
+<li class="breadcrumb-item"><a href="/">Träna</a></li>
+<li class="breadcrumb-item active">Update</li>
+{{ end }}
+
+{{ define "body" }}
+<form method="post" action="/deck/update" class="text-center">
+        <label for="name">Name</label>
+        <input type="text" name="name" id="name" class="form-control mb-3 fs-2 text-center" value="{{ .Deck.Name }}" required>
+
+        <div class="d-grid">
+                <button type="submit" class="btn btn-dark">Save</button>
+        </div>
+
+        <input name="deck" value="{{ .Deck.ID }}" required readonly hidden>
+</form>
+{{ end }}
