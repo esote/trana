@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/esote/trana/internal/db"
 	"golang.org/x/text/unicode/norm"
 )
 
@@ -24,7 +25,7 @@ const (
 var ErrBadComfort = fmt.Errorf("trana: comfort must be from %d to %d", ComfortReviewMax, ComfortReviewMax)
 
 type Trana struct {
-	db *sql.DB
+	db db.DB
 }
 
 type Deck struct {
@@ -42,7 +43,7 @@ type Card struct {
 }
 
 func New(path string) (*Trana, error) {
-	db, err := openDB(path)
+	db, err := db.NewSQLite(path)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +57,7 @@ func (t *Trana) Close() error {
 func (t *Trana) CreateDeck(ctx context.Context, name string) error {
 	name = cleanString(name)
 
-	return tx(t.db, ctx, func(tx *sql.Tx) error {
+	return t.db.Tx(ctx, func(tx *sql.Tx) error {
 		_, err := tx.Exec(`INSERT INTO "decks" ("name")
 			VALUES (@name)`, name)
 		return err
@@ -65,7 +66,7 @@ func (t *Trana) CreateDeck(ctx context.Context, name string) error {
 
 func (t *Trana) GetDeck(ctx context.Context, id int64) (*Deck, error) {
 	var deck Deck
-	err := tx(t.db, ctx, func(tx *sql.Tx) error {
+	err := t.db.Tx(ctx, func(tx *sql.Tx) error {
 		return tx.QueryRow(`SELECT "id", "name"
 			FROM "decks"
 			WHERE "id" = @id
@@ -80,7 +81,7 @@ func (t *Trana) GetDeck(ctx context.Context, id int64) (*Deck, error) {
 func (t *Trana) UpdateDeck(ctx context.Context, deck *Deck) error {
 	name := cleanString(deck.Name)
 
-	return tx(t.db, ctx, func(tx *sql.Tx) error {
+	return t.db.Tx(ctx, func(tx *sql.Tx) error {
 		_, err := tx.Exec(`UPDATE "decks"
 			SET "name" = @name
 			WHERE "id" = @id`, name, deck.ID)
@@ -89,7 +90,7 @@ func (t *Trana) UpdateDeck(ctx context.Context, deck *Deck) error {
 }
 
 func (t *Trana) DeleteDeck(ctx context.Context, id int64) error {
-	return tx(t.db, ctx, func(tx *sql.Tx) error {
+	return t.db.Tx(ctx, func(tx *sql.Tx) error {
 		_, err := tx.Exec(`DELETE FROM "decks"
 			WHERE "id" = @id`, id)
 		return err
@@ -98,7 +99,7 @@ func (t *Trana) DeleteDeck(ctx context.Context, id int64) error {
 
 func (t *Trana) ListDecks(ctx context.Context) ([]Deck, error) {
 	var decks []Deck
-	err := tx(t.db, ctx, func(tx *sql.Tx) error {
+	err := t.db.Tx(ctx, func(tx *sql.Tx) error {
 		rows, err := tx.Query(`SELECT "id", "name"
 			FROM "decks"
 			ORDER BY "id" ASC`)
@@ -125,7 +126,7 @@ func (t *Trana) CreateCard(ctx context.Context, deck int64, front, back string) 
 	front = cleanString(front)
 	back = cleanString(back)
 
-	return tx(t.db, ctx, func(tx *sql.Tx) error {
+	return t.db.Tx(ctx, func(tx *sql.Tx) error {
 		_, err := tx.Exec(`INSERT INTO "cards" ("deck", "front", "back")
 			VALUES (@deck, @front, @back)`, deck, front, back)
 		return err
@@ -136,7 +137,7 @@ func (t *Trana) GetCard(ctx context.Context, id int64) (*Card, error) {
 	var card Card
 	var lastPracticed sql.NullInt64
 
-	err := tx(t.db, ctx, func(tx *sql.Tx) error {
+	err := t.db.Tx(ctx, func(tx *sql.Tx) error {
 		return tx.QueryRow(`SELECT "id", "deck", "front", "back", "last_practiced", "comfort"
 			FROM "cards"
 			WHERE "id" = @id
@@ -157,7 +158,7 @@ func (t *Trana) NextCard(ctx context.Context, deck int64) (*Card, error) {
 	var card Card
 	var lastPracticed sql.NullInt64
 
-	err := tx(t.db, ctx, func(tx *sql.Tx) error {
+	err := t.db.Tx(ctx, func(tx *sql.Tx) error {
 		return tx.QueryRow(`SELECT "id", "deck", "front", "back", "last_practiced", "comfort"
 			FROM "cards"
 			WHERE "deck" = @deck
@@ -191,7 +192,7 @@ func (t *Trana) UpdateCard(ctx context.Context, card *Card) error {
 		lastPracticed.Int64 = card.LastPracticed.Unix()
 	}
 
-	return tx(t.db, ctx, func(tx *sql.Tx) error {
+	return t.db.Tx(ctx, func(tx *sql.Tx) error {
 		_, err := tx.Exec(`UPDATE "cards"
 			SET "front" = @front, "back" = @back, "last_practiced" = @lastPracticed, "comfort" = @comfort
 			WHERE "id" = @id`, front, back, lastPracticed, card.Comfort, card.ID)
@@ -205,7 +206,7 @@ func (t *Trana) ReviewCard(ctx context.Context, id int64, comfort float64) error
 	}
 	comfort = comfortNorm(comfort)
 
-	return tx(t.db, ctx, func(tx *sql.Tx) error {
+	return t.db.Tx(ctx, func(tx *sql.Tx) error {
 		_, err := tx.Exec(`UPDATE "cards"
 			SET "comfort" = @comfort
 			WHERE "id" = @id`, comfort, id)
@@ -214,7 +215,7 @@ func (t *Trana) ReviewCard(ctx context.Context, id int64, comfort float64) error
 }
 
 func (t *Trana) DeleteCard(ctx context.Context, id int64) error {
-	return tx(t.db, ctx, func(tx *sql.Tx) error {
+	return t.db.Tx(ctx, func(tx *sql.Tx) error {
 		_, err := tx.Exec(`DELETE FROM "cards"
 			WHERE "id" = @id`, id)
 		return err
@@ -223,7 +224,7 @@ func (t *Trana) DeleteCard(ctx context.Context, id int64) error {
 
 func (t *Trana) ListCards(ctx context.Context, deck int64) ([]Card, error) {
 	var cards []Card
-	err := tx(t.db, ctx, func(tx *sql.Tx) error {
+	err := t.db.Tx(ctx, func(tx *sql.Tx) error {
 		rows, err := tx.Query(`SELECT "id", "deck", "front", "back", "last_practiced", "comfort"
 			FROM "cards"
 			WHERE "deck" = @deck
@@ -253,7 +254,7 @@ func (t *Trana) ListCards(ctx context.Context, deck int64) ([]Card, error) {
 }
 
 func (t *Trana) Import(ctx context.Context, deck int64, cards []Card) error {
-	return tx(t.db, ctx, func(tx *sql.Tx) error {
+	return t.db.Tx(ctx, func(tx *sql.Tx) error {
 		for _, card := range cards {
 			if err := importCard(tx, deck, &card); err != nil {
 				return err

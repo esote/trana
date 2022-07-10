@@ -1,4 +1,4 @@
-package trana
+package db
 
 import (
 	"context"
@@ -12,13 +12,13 @@ import (
 )
 
 func TestTransactionRollback(t *testing.T) {
-	db, err := openDB(":memory:")
+	db, err := NewSQLite(":memory:")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer db.Close()
 
-	if _, err = db.Exec(`CREATE TABLE "t" ("id" INTEGER PRIMARY KEY)`); err != nil {
+	if _, err = db.db.Exec(`CREATE TABLE "t" ("id" INTEGER PRIMARY KEY)`); err != nil {
 		t.Fatal(err)
 	}
 
@@ -29,7 +29,7 @@ func TestTransactionRollback(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			err = tx(db, context.Background(), func(tx *sql.Tx) error {
+			err = db.Tx(context.Background(), func(tx *sql.Tx) error {
 				if _, err := tx.Exec(`DROP TABLE "t"`); err != nil {
 					t.Fatal(err)
 				}
@@ -39,7 +39,7 @@ func TestTransactionRollback(t *testing.T) {
 				t.Fatal("transaction got nil; want err")
 			}
 
-			result, err := db.Exec(`INSERT INTO "t" ("id") VALUES (NULL)`)
+			result, err := db.db.Exec(`INSERT INTO "t" ("id") VALUES (NULL)`)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -56,7 +56,7 @@ func TestTransactionRollback(t *testing.T) {
 
 func TestMigrate(t *testing.T) {
 	const path = ":memory:"
-	db, err := openDB(path)
+	db, err := NewSQLite(path)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -66,7 +66,7 @@ func TestMigrate(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	migrationDB, err := sqlite3.WithInstance(db, &sqlite3.Config{
+	migrationDB, err := sqlite3.WithInstance(db.db, &sqlite3.Config{
 		DatabaseName: path,
 	})
 	if err != nil {
