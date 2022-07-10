@@ -208,8 +208,8 @@ func (t *Trana) ReviewCard(ctx context.Context, id int64, comfort float64) error
 
 	return t.db.Tx(ctx, func(tx *sql.Tx) error {
 		_, err := tx.Exec(`UPDATE "cards"
-			SET "comfort" = @comfort
-			WHERE "id" = @id`, comfort, id)
+			SET "comfort" = @comfort, "last_practiced" = @lastPracticed
+			WHERE "id" = @id`, comfort, time.Now().Unix(), id)
 		return err
 	})
 }
