@@ -12,9 +12,9 @@ Delete card &ndash; {{ .Deck.Name }}
 
 {{ define "body" }}
 <form method="post" action="/card/delete">
-        <input type="text" class="form-control mb-3 fs-2 text-center" value="{{ .Card.Front }}" readonly>
+        <input type="text" class="form-control mb-3 text-center" value="{{ .Card.Front }}" readonly>
 
-        <input type="text" class="form-control mb-3 fs-2 text-center" value="{{ .Card.Back }}" readonly>
+        <input type="text" class="form-control mb-3 text-center" value="{{ .Card.Back }}" readonly>
 
         <div class="d-grid">
                 <button type="submit" class="btn btn-danger">Delete</button>

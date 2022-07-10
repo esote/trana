@@ -23,7 +23,7 @@ Check card &ndash; {{ .Deck.Name }}
 <form method="post" action="/card/check">
         <div class="position-absolute top-0 start-100 translate-middle badge bg-dark">Card {{ .Card.ID }}</div>
 
-        <input type="text" class="form-control mb-3 fs-2 text-center" value="{{ .Card.Front }}" readonly>
+        <input type="text" class="form-control mb-3 text-center" value="{{ .Card.Front }}" readonly>
 
         <p class="text-center fw-bold">
                 You entered
@@ -33,7 +33,7 @@ Check card &ndash; {{ .Deck.Name }}
                 <span class="text-center text-danger">(incorrect)</span>
                 {{ end }}
         </p>
-        <p class="form-control-plaintext mb-3 fs-2 text-center">
+        <p class="form-control-plaintext mb-3 text-center">
                 {{ range .Diff }}
                 {{- if .Ok -}}
                 {{- .R -}}
@@ -45,7 +45,7 @@ Check card &ndash; {{ .Deck.Name }}
 
         {{ if not .Ok }}
         <p class="text-center fw-bold text-center text-success">Correct value</p>
-        <input class="form-control mb-3 fs-2 text-center" value="{{ .Card.Back }}" readonly>
+        <input class="form-control mb-3 text-center" value="{{ .Card.Back }}" readonly>
         {{ end }}
 
         <div class="d-grid">

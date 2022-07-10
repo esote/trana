@@ -11,7 +11,7 @@ Delete deck &ndash; Träna
 
 {{ define "body" }}
 <form method="post" action="/deck/delete">
-        <input type="text" class="form-control mb-3 fs-2 text-center" value="{{ .Deck.Name }}" readonly>
+        <input type="text" class="form-control mb-3 text-center" value="{{ .Deck.Name }}" readonly>
 
         <div class="d-grid">
                 <button type="submit" class="btn btn-danger">Delete</button>

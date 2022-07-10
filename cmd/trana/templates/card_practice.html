@@ -14,9 +14,9 @@ Practice card &ndash; {{ .Deck.Name }}
 <form method="get" action="/card/check">
         <div class="position-absolute top-0 start-100 translate-middle badge bg-dark">Card {{ .Card.ID }}</div>
 
-        <input type="text" id="front" class="form-control mb-3 fs-2 text-center" value="{{ .Card.Front }}" readonly>
+        <input type="text" id="front" class="form-control mb-3 text-center" value="{{ .Card.Front }}" readonly>
 
-        <input name="back" id="back" type="text" class="form-control mb-3 fs-2 text-center" autofocus>
+        <input name="back" id="back" type="text" class="form-control mb-3 text-center" autofocus>
 
         <div class="d-grid">
                 <button type="submit" class="btn btn-dark">Check</button>

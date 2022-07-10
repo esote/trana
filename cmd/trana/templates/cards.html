@@ -48,13 +48,13 @@ Cards &ndash; {{ .Deck.Name }}
                         <td>{{ .Back }}</td>
                         <td title="{{ .Comfort }}">
                                 {{ if eq .Comfort -1.0 }}
-                                <span class="badge text-bg-dark fs-6">Not practiced</span>
+                                <span class="badge text-bg-dark">Not practiced</span>
                                 {{ else if lt .Comfort 1.5 }}
-                                <span class="badge text-bg-danger fs-6">Not sure</span>
+                                <span class="badge text-bg-danger">Not sure</span>
                                 {{ else if lt .Comfort 3.0 }}
-                                <span class="badge text-bg-warning fs-6">Learning</span>
+                                <span class="badge text-bg-warning">Learning</span>
                                 {{ else if le .Comfort 4.0 }}
-                                <span class="badge text-bg-success fs-6">Confident</span>
+                                <span class="badge text-bg-success">Confident</span>
                                 {{ end }}
                         </td>
                         <td>
