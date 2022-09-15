@@ -17,8 +17,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/esote/configdir"
 	"github.com/esote/trana"
-	"github.com/esote/trana/internal/config"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
@@ -49,7 +49,7 @@ func main() {
 
 	if dir == "" {
 		var err error
-		dir, err = config.Dir("trana")
+		dir, err = configdir.New("trana")
 		if err != nil {
 			log.Fatal(err)
 		}
